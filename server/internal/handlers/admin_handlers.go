@@ -1,60 +1,49 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"server/internal/services"
 
-func AdminLogin(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Admin login",
-	})
+	"github.com/gin-gonic/gin"
+)
+
+type AdminHandler struct {
+	AdminService *services.AdminService
+	AuthService  *services.AuthService
 }
 
-func GetAllUsers(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Get all users",
-	})
+func NewAdminHandler(adminService *services.AdminService, authService *services.AuthService) *AdminHandler {
+	return &AdminHandler{
+		AdminService: adminService,
+		AuthService:  authService,
+	}
 }
 
-func CreateUser(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Create user",
-	})
+func (h *AdminHandler) AdminLogin(c *gin.Context) {
+	var loginRequest struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	admin, err := h.AuthService.AdminLogin(loginRequest.Username, loginRequest.Password)
+	if err != nil {
+		c.JSON(401, gin.H{"error": "invalid username or password"})
+		return
+	}
+
+	c.JSON(200, admin)
 }
 
-func GetUserByID(c *gin.Context) {
-}
+func (h *AdminHandler) GetAllUsers(c *gin.Context) {
+	users, err := h.AdminService.GetAllUsers()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
 
-func UpdateUser(c *gin.Context) {
-}
-
-func DeleteUser(c *gin.Context) {
-}
-
-func GetAllKeys(c *gin.Context) {
-}
-
-func CreateKey(c *gin.Context) {
-}
-
-func GetKeyByID(c *gin.Context) {
-}
-
-func UpdateKey(c *gin.Context) {
-}
-
-func DeleteKey(c *gin.Context) {
-}
-
-func GetAllCheats(c *gin.Context) {
-}
-
-func CreateCheat(c *gin.Context) {
-}
-
-func GetCheatByID(c *gin.Context) {
-}
-
-func UpdateCheat(c *gin.Context) {
-}
-
-func DeleteCheat(c *gin.Context) {
+	c.JSON(200, users)
 }

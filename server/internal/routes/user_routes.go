@@ -2,17 +2,17 @@ package routes
 
 import (
 	"server/internal/handlers"
+	"server/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(r *gin.Engine) {
+func UserRoutes(r *gin.Engine, userService *services.UserService, authService *services.AuthService) {
+	userHandler := handlers.NewUserHandler(userService, authService)
+
 	user := r.Group("/user")
 	{
-		user.POST("/login", handlers.UserLogin)
-		user.POST("/register", handlers.UserRegister)
-		user.GET("/profile", handlers.UserProfile)
-		user.PUT("/profile", handlers.UserUpdateProfile)
-		user.POST("/redeem", handlers.UserRedeem)
+		user.POST("/login", userHandler.UserLogin)
+		user.POST("/redeem-key", userHandler.RedeemKey)
 	}
 }

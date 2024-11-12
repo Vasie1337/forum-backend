@@ -10,6 +10,13 @@ type AdminService struct {
 	KeyRepo  repository.KeyRepository
 }
 
+func NewAdminService(userRepo repository.UserRepository, keyRepo repository.KeyRepository) *AdminService {
+	return &AdminService{
+		UserRepo: userRepo,
+		KeyRepo:  keyRepo,
+	}
+}
+
 func (s *AdminService) GetAllUsers() ([]*models.User, error) {
 	return s.UserRepo.GetAll()
 }

@@ -12,6 +12,13 @@ type AuthService struct {
 	UserRepo  repository.UserRepository
 }
 
+func NewAuthService(adminRepo repository.AdminRepository, userRepo repository.UserRepository) *AuthService {
+	return &AuthService{
+		AdminRepo: adminRepo,
+		UserRepo:  userRepo,
+	}
+}
+
 func (s *AuthService) AdminLogin(username, password string) (*models.Admin, error) {
 	admin, err := s.AdminRepo.GetByUsername(username)
 	if err != nil {

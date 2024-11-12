@@ -12,6 +12,13 @@ type UserService struct {
 	KeyRepo  repository.KeyRepository
 }
 
+func NewUserService(userRepo repository.UserRepository, keyRepo repository.KeyRepository) *UserService {
+	return &UserService{
+		UserRepo: userRepo,
+		KeyRepo:  keyRepo,
+	}
+}
+
 func (s *UserService) RedeemKey(userID int, keyValue string) error {
 	key, err := s.KeyRepo.GetByValue(keyValue)
 	if err != nil {
