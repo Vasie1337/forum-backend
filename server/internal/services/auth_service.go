@@ -1,6 +1,7 @@
 package services
 
 import (
+	"server/internal/config"
 	"server/internal/models"
 	"server/internal/repository"
 
@@ -25,9 +26,8 @@ func (s *AuthService) AdminLogin(username, password string) (*models.Admin, erro
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(password))
-	if err != nil {
-		return nil, err
+	if admin.Password != password {
+		return nil, config.ErrInvalidPassword
 	}
 
 	return admin, nil
