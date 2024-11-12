@@ -14,5 +14,6 @@ func AdminRoutes(r *gin.Engine, adminService *services.AdminService, authService
 	{
 		admin.POST("/login", adminHandler.AdminLogin)
 		admin.GET("/users", adminHandler.AuthMiddleware(), adminHandler.GetAllUsers)
+		admin.GET("/users/:id", adminHandler.AuthMiddleware(), adminHandler.GetUserByID)
 	}
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"server/internal/services"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -76,4 +77,20 @@ func (h *AdminHandler) GetAllUsers(c *gin.Context) {
 	}
 
 	c.JSON(200, users)
+}
+
+func (h *AdminHandler) GetUserByID(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "invalid user ID"})
+		return
+	}
+	user, err := h.AdminService.GetUserByID(userID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, user)
 }

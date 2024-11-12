@@ -21,6 +21,10 @@ func (s *AdminService) GetAllUsers() ([]*models.User, error) {
 	return s.UserRepo.GetAll()
 }
 
+func (s *AdminService) GetUserByID(id int) (*models.User, error) {
+	return s.UserRepo.GetByID(id)
+}
+
 func (s *AdminService) CreateUser(user *models.User) error {
 	return s.UserRepo.Create(user)
 }

@@ -24,8 +24,8 @@ type CustomClaims struct {
 }
 
 var (
-	adminJWTSecretKey = []byte("thrdgfjhnr6juh6rtj")
-	userJWTSecretKey  = []byte("r56jjr5ytfyjrtyjyt")
+	adminJWTSecretKey = []byte("thrdgf$jhnr6ju3$567h6rtj")
+	userJWTSecretKey  = []byte("r56$jjr5y567t6fy$jrtyjyt")
 )
 
 func NewAuthService(adminRepo repository.AdminRepository, userRepo repository.UserRepository) *AuthService {
