@@ -35,7 +35,37 @@ func (h *AdminHandler) AdminLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, admin)
+	token, err := h.AuthService.GenerateToken(admin.ID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "could not generate token"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"admin": admin,
+		"token": token,
+	})
+}
+
+func (h *AdminHandler) AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" {
+			c.JSON(401, gin.H{"error": "missing token"})
+			c.Abort()
+			return
+		}
+
+		claims, err := h.AuthService.ValidateToken(tokenString)
+		if err != nil {
+			c.JSON(401, gin.H{"error": "invalid or expired token"})
+			c.Abort()
+			return
+		}
+
+		c.Set("claims", claims)
+		c.Next()
+	}
 }
 
 func (h *AdminHandler) GetAllUsers(c *gin.Context) {
