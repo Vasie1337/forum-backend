@@ -10,8 +10,8 @@ type AdminRepository struct {
 	db *gorm.DB
 }
 
-func NewAdminRepository(db *gorm.DB) *AdminRepository {
-	return &AdminRepository{db}
+func NewAdminRepository(db *gorm.DB) AdminRepository {
+	return AdminRepository{db}
 }
 
 func (r *AdminRepository) GetByUsername(username string) (*models.Admin, error) {

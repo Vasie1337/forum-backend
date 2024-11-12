@@ -10,8 +10,8 @@ type KeyRepository struct {
 	db *gorm.DB
 }
 
-func NewKeyRepository(db *gorm.DB) *KeyRepository {
-	return &KeyRepository{db: db}
+func NewKeyRepository(db *gorm.DB) KeyRepository {
+	return KeyRepository{db: db}
 }
 
 func (r *KeyRepository) GetByID(id int) (*models.Key, error) {
