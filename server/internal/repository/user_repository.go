@@ -38,8 +38,8 @@ func (r *UserRepository) Delete(user *models.User) error {
 	return r.db.Delete(user).Error
 }
 
-func (r *UserRepository) GetAll() ([]models.User, error) {
-	var users []models.User
+func (r *UserRepository) GetAll() ([]*models.User, error) {
+	var users []*models.User
 	err := r.db.Find(&users).Error
 	return users, err
 }
