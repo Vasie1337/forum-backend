@@ -5,7 +5,9 @@ import (
 	"server/internal/config"
 	"server/internal/models"
 	"server/internal/repository"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -17,11 +19,14 @@ type AuthService struct {
 }
 
 type CustomClaims struct {
-	AdminID int `json:"admin_id"`
+	ID int `json:"id"`
 	jwt.RegisteredClaims
 }
 
-var jwtSecretKey = []byte("VhakmGcXVPsQ05YyxKsj4SNdODjyK8kx")
+var (
+	adminJWTSecretKey = []byte("thrdgfjhnr6juh6rtj")
+	userJWTSecretKey  = []byte("r56jjr5ytfyjrtyjyt")
+)
 
 func NewAuthService(adminRepo repository.AdminRepository, userRepo repository.UserRepository) *AuthService {
 	return &AuthService{
@@ -57,17 +62,17 @@ func (s *AuthService) UserLogin(username, password string) (*models.User, error)
 	return user, nil
 }
 
-func (a *AuthService) GenerateToken(adminID int) (string, error) {
+func (a *AuthService) GenerateAdminToken(adminID int) (string, error) {
 	claims := CustomClaims{
-		AdminID: adminID,
+		ID: adminID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(3 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(jwtSecretKey)
+	signedToken, err := token.SignedString(adminJWTSecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -75,17 +80,62 @@ func (a *AuthService) GenerateToken(adminID int) (string, error) {
 	return signedToken, nil
 }
 
-func (a *AuthService) ValidateToken(tokenString string) (*CustomClaims, error) {
+func (a *AuthService) GenerateUserToken(userID int) (string, error) {
+	claims := CustomClaims{
+		ID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(userJWTSecretKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+}
+
+func cleanTokenString(token string) (string, error) {
+	token = strings.TrimSpace(token)
+
+	for _, char := range token {
+		if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '.' || char == '-') {
+			return "", errors.New("invalid token: contains illegal characters")
+		}
+	}
+
+	return token, nil
+}
+
+func (a *AuthService) ValidateAdminToken(tokenString string) (*CustomClaims, error) {
+	cleanedToken, err := cleanTokenString(tokenString)
+	if err != nil {
+		return nil, err
+	}
+	return a.validateToken(cleanedToken, adminJWTSecretKey)
+}
+
+func (a *AuthService) ValidateUserToken(tokenString string) (*CustomClaims, error) {
+	cleanedToken, err := cleanTokenString(tokenString)
+	if err != nil {
+		return nil, err
+	}
+	return a.validateToken(cleanedToken, userJWTSecretKey)
+}
+
+func (a *AuthService) validateToken(tokenString string, secretKey []byte) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return jwtSecretKey, nil
+		return secretKey, nil
 	})
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return claims, nil
-	} else {
-		return nil, err
 	}
+	return nil, err
 }

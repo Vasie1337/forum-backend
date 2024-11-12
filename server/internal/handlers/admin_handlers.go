@@ -35,7 +35,7 @@ func (h *AdminHandler) AdminLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := h.AuthService.GenerateToken(admin.ID)
+	token, err := h.AuthService.GenerateAdminToken(admin.ID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "could not generate token"})
 		return
@@ -56,7 +56,7 @@ func (h *AdminHandler) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := h.AuthService.ValidateToken(tokenString)
+		claims, err := h.AuthService.ValidateAdminToken(tokenString)
 		if err != nil {
 			c.JSON(401, gin.H{"error": "invalid or expired token"})
 			c.Abort()
