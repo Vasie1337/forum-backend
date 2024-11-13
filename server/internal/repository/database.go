@@ -1,14 +1,14 @@
 package repository
 
 import (
+	"server/internal/config"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func NewDB() (*gorm.DB, error) {
-	dsn := "root:@tcp(127.0.0.1:3306)/test-backend?charset=utf8mb4&parseTime=True&loc=Local"
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(config.DSN), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

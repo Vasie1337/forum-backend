@@ -1,6 +1,7 @@
 package main
 
 import (
+	"server/internal/config"
 	"server/internal/repository"
 	"server/internal/routes"
 	"server/internal/services"
@@ -9,6 +10,8 @@ import (
 )
 
 func main() {
+	gin.SetMode(config.GinMode)
+
 	r := gin.Default()
 
 	db, err := repository.NewDB()

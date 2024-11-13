@@ -21,11 +21,6 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-var (
-	adminJWTSecretKey = []byte("thrdgf$jhnr6ju3$567h6rtj")
-	userJWTSecretKey  = []byte("r56$jjr5y567t6fy$jrtyjyt")
-)
-
 func NewAuthService(adminRepo repository.AdminRepository, userRepo repository.UserRepository) *AuthService {
 	return &AuthService{
 		AdminRepo: adminRepo,
@@ -63,13 +58,13 @@ func (a *AuthService) GenerateAdminToken(adminID int) (string, error) {
 	claims := CustomClaims{
 		ID: adminID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(3 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.MaxTimeWindowJWTAdmin)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(adminJWTSecretKey)
+	signedToken, err := token.SignedString(config.JWTSecretKeyAdmin)
 	if err != nil {
 		return "", err
 	}
@@ -81,13 +76,13 @@ func (a *AuthService) GenerateUserToken(userID int) (string, error) {
 	claims := CustomClaims{
 		ID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.MaxTimeWindowJWTUser)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(userJWTSecretKey)
+	signedToken, err := token.SignedString(config.JWTSecretKeyUser)
 	if err != nil {
 		return "", err
 	}
@@ -95,32 +90,16 @@ func (a *AuthService) GenerateUserToken(userID int) (string, error) {
 	return signedToken, nil
 }
 
-func cleanTokenString(token string) (string, error) {
-	token = strings.TrimSpace(token)
-
-	//for _, char := range token {
-	//	if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '.' || char == '-') {
-	//		return "", errors.New("invalid token: contains illegal characters")
-	//	}
-	//}
-
-	return token, nil
+func cleanTokenString(token string) string {
+	return strings.TrimSpace(token)
 }
 
 func (a *AuthService) ValidateAdminToken(tokenString string) (*CustomClaims, error) {
-	cleanedToken, err := cleanTokenString(tokenString)
-	if err != nil {
-		return nil, err
-	}
-	return a.validateToken(cleanedToken, adminJWTSecretKey)
+	return a.validateToken(cleanTokenString(tokenString), config.JWTSecretKeyAdmin)
 }
 
 func (a *AuthService) ValidateUserToken(tokenString string) (*CustomClaims, error) {
-	cleanedToken, err := cleanTokenString(tokenString)
-	if err != nil {
-		return nil, err
-	}
-	return a.validateToken(cleanedToken, userJWTSecretKey)
+	return a.validateToken(cleanTokenString(tokenString), config.JWTSecretKeyUser)
 }
 
 func (a *AuthService) validateToken(tokenString string, secretKey []byte) (*CustomClaims, error) {

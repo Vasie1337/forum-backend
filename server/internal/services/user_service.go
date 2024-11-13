@@ -36,7 +36,7 @@ func (s *UserService) RedeemKey(userID int, keyValue string) error {
 	key.Redeemed = true
 	key.RedeemedAt = time.Now()
 	key.UserID = user.ID
-	key.ValidUntil = time.Now().AddDate(0, 0, 7) // 7 days from now
+	key.ValidUntil = time.Now().AddDate(0, 0, 7) // TODO Make this configurable in the key table
 
 	err = s.KeyRepo.Update(key)
 	if err != nil {
