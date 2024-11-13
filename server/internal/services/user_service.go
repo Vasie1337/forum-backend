@@ -3,6 +3,7 @@ package services
 import (
 	"server/internal/config"
 	"server/internal/repository"
+	"time"
 )
 
 type UserService struct {
@@ -33,7 +34,9 @@ func (s *UserService) RedeemKey(userID int, keyValue string) error {
 	}
 
 	key.Redeemed = true
+	key.RedeemedAt = time.Now()
 	key.UserID = user.ID
+	key.ValidUntil = time.Now().AddDate(0, 0, 7) // 7 days from now
 
 	err = s.KeyRepo.Update(key)
 	if err != nil {

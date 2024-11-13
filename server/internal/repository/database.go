@@ -6,7 +6,7 @@ import (
 )
 
 func NewDB() (*gorm.DB, error) {
-	dsn := "root:@tcp(127.0.0.1:3306)/test-backend"
+	dsn := "root:@tcp(127.0.0.1:3306)/test-backend?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

@@ -41,8 +41,6 @@ func (h *UserHandler) UserLogin(c *gin.Context) {
 		return
 	}
 
-	println("Token: ", token)
-
 	c.JSON(200, gin.H{
 		"user":  user,
 		"token": token,
