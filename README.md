@@ -28,5 +28,5 @@ The server will start on http://localhost:8080.
 - GORM
 - JWT
 
-##License
+## License
 This project is licensed under the MIT License. See the LICENSE file for details.
