@@ -7,10 +7,8 @@ import (
 	"server/internal/repository"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/golang-jwt/jwt/v4"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
@@ -54,9 +52,8 @@ func (s *AuthService) UserLogin(username, password string) (*models.User, error)
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return nil, err
+	if user.Password != password {
+		return nil, config.ErrInvalidPassword
 	}
 
 	return user, nil
@@ -101,11 +98,11 @@ func (a *AuthService) GenerateUserToken(userID int) (string, error) {
 func cleanTokenString(token string) (string, error) {
 	token = strings.TrimSpace(token)
 
-	for _, char := range token {
-		if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '.' || char == '-') {
-			return "", errors.New("invalid token: contains illegal characters")
-		}
-	}
+	//for _, char := range token {
+	//	if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '.' || char == '-') {
+	//		return "", errors.New("invalid token: contains illegal characters")
+	//	}
+	//}
 
 	return token, nil
 }

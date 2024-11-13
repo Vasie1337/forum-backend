@@ -35,12 +35,45 @@ func (h *UserHandler) UserLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, user)
+	token, err := h.AuthService.GenerateUserToken(user.ID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "could not generate token"})
+		return
+	}
+
+	println("Token: ", token)
+
+	c.JSON(200, gin.H{
+		"user":  user,
+		"token": token,
+	})
+}
+
+func (h *UserHandler) AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" {
+			c.JSON(401, gin.H{"error": "missing token"})
+			c.Abort()
+			return
+		}
+
+		claims, err := h.AuthService.ValidateUserToken(tokenString)
+		if err != nil {
+			c.JSON(401, gin.H{"error": "invalid token"})
+			c.Abort()
+			return
+		}
+
+		c.Set("claims", claims)
+		c.Next()
+	}
 }
 
 func (h *UserHandler) RedeemKey(c *gin.Context) {
 	var redemptionRequest struct {
 		KeyValue string `json:"key_value"`
+		UserID   int    `json:"user_id"`
 	}
 
 	if err := c.ShouldBindJSON(&redemptionRequest); err != nil {
@@ -48,9 +81,7 @@ func (h *UserHandler) RedeemKey(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetInt("user_id") // Assuming you have middleware to extract the user ID
-
-	err := h.UserService.RedeemKey(userID, redemptionRequest.KeyValue)
+	err := h.UserService.RedeemKey(redemptionRequest.UserID, redemptionRequest.KeyValue)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

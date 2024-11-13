@@ -13,6 +13,6 @@ func UserRoutes(r *gin.Engine, userService *services.UserService, authService *s
 	user := r.Group("/user")
 	{
 		user.POST("/login", userHandler.UserLogin)
-		user.POST("/redeem-key", userHandler.RedeemKey)
+		user.GET("/redeem-key", userHandler.AuthMiddleware(), userHandler.RedeemKey)
 	}
 }

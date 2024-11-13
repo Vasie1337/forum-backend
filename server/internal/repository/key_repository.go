@@ -20,10 +20,13 @@ func (r *KeyRepository) GetByID(id int) (*models.Key, error) {
 	return &key, err
 }
 
-func (r *KeyRepository) GetByValue(value string) (*models.Key, error) {
+func (r *KeyRepository) GetByValue(keyValue string) (*models.Key, error) {
 	var key models.Key
-	err := r.db.Where("value = ?", value).First(&key).Error
-	return &key, err
+	err := r.db.Where("`key` = ?", keyValue).First(&key).Error
+	if err != nil {
+		return nil, err
+	}
+	return &key, nil
 }
 
 func (r *KeyRepository) Create(key *models.Key) error {

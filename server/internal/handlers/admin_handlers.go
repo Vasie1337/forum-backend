@@ -57,6 +57,7 @@ func (h *AdminHandler) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		println("AuthMiddleware Token: ", tokenString)
 		claims, err := h.AuthService.ValidateAdminToken(tokenString)
 		if err != nil {
 			c.JSON(401, gin.H{"error": "invalid or expired token"})

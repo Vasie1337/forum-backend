@@ -3,8 +3,6 @@ package services
 import (
 	"server/internal/config"
 	"server/internal/repository"
-
-	"time"
 )
 
 type UserService struct {
@@ -35,7 +33,6 @@ func (s *UserService) RedeemKey(userID int, keyValue string) error {
 	}
 
 	key.Redeemed = true
-	key.RedeemedAt = time.Now()
 	key.UserID = user.ID
 
 	err = s.KeyRepo.Update(key)
