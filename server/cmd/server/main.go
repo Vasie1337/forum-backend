@@ -30,5 +30,11 @@ func main() {
 	routes.AdminRoutes(r, adminService, authService)
 	routes.UserRoutes(r, userService, authService)
 
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Server is running",
+		})
+	})
+
 	r.Run(":8080")
 }
