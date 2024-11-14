@@ -8,7 +8,7 @@ type Cheat struct {
 	Content     string `json:"content" gorm:"not null"`     // Cheat content
 	Description string `json:"description" gorm:"not null"` // Cheat description
 
-	UpdatedAt time.Time // When the cheat was last updated
+	UpdatedAt time.Time // When the cheat was last updated 
 	CreatedAt time.Time // When the cheat was created
 }
 
